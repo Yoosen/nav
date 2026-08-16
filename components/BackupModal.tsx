@@ -41,13 +41,10 @@ const BackupModal: React.FC<BackupModalProps> = ({
   }, [isOpen, webDavConfig]);
 
   const fetchIconsAsBase64 = async (linksList: LinkItem[], onProgress?: (current: number, total: number) => void) => {
-    const uploadedIcons: Array<{ key: string, platform: 'edgeone' | 'cloudflare', data: string }> = [];
+    const uploadedIcons: Array<{ key: string, platform: 'cloudflare', data: string }> = [];
     
     const iconUrls = new Set<string>();
     linksList.forEach(l => {
-      if (l.edgeoneBlobUrl && l.edgeoneBlobUrl.startsWith('/api/favicon?key=')) {
-        iconUrls.add(l.edgeoneBlobUrl);
-      }
       if (l.cloudflareR2Url && l.cloudflareR2Url.startsWith('/api/favicon?key=')) {
         iconUrls.add(l.cloudflareR2Url);
       }
@@ -79,15 +76,9 @@ const BackupModal: React.FC<BackupModalProps> = ({
           reader.readAsDataURL(blob);
         });
 
-        let platform: 'edgeone' | 'cloudflare' = 'edgeone';
-        const matchingLink = linksList.find(l => l.cloudflareR2Url === iconUrl || (l.icon === iconUrl && l.iconType === 'upload-cloudflare'));
-        if (matchingLink) {
-          platform = 'cloudflare';
-        }
-
         uploadedIcons.push({
           key,
-          platform,
+          platform: 'cloudflare',
           data: base64
         });
       } catch (e) {
@@ -99,7 +90,7 @@ const BackupModal: React.FC<BackupModalProps> = ({
   };
 
   const restoreUploadedIcons = async (
-    uploadedIcons: Array<{ key: string, platform: 'edgeone' | 'cloudflare', data: string }>,
+    uploadedIcons: Array<{ key: string, platform: 'cloudflare', data: string }>,
     linksList: LinkItem[],
     onProgress?: (current: number, total: number) => void
   ) => {
@@ -142,7 +133,6 @@ const BackupModal: React.FC<BackupModalProps> = ({
 
             updatedLinks.forEach(l => {
               if (l.icon === oldUrl) l.icon = newUrl;
-              if (l.edgeoneBlobUrl === oldUrl) l.edgeoneBlobUrl = newUrl;
               if (l.cloudflareR2Url === oldUrl) l.cloudflareR2Url = newUrl;
             });
           }

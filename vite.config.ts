@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => {
       plugins: [
         react(),
         // 本地开发：用内存 KV 运行 functions/api/*.js，使后台可登录
-        // 生产部署由 Cloudflare/EdgeOne Pages Functions 接管，此插件仅 dev 生效
+        // 生产部署由 Cloudflare Pages Functions 接管，此插件仅 dev 生效
         localFunctionsPlugin({ env }),
       ],
       // define: {

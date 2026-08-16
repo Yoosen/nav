@@ -375,7 +375,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                     />
                     <div>
                       <span className="text-sm text-slate-700 dark:text-slate-300 block font-medium">启用边缘抓取缓存</span>
-                      <span className="text-xs text-slate-400 block mt-0.5">开启后，域名图标首次抓取后自动缓存到平台存储（EdgeOne → Blob，Cloudflare → R2）。免费用户可取消以节省存储空间。</span>
+                      <span className="text-xs text-slate-400 block mt-0.5">开启后，域名图标首次抓取后自动缓存到 Cloudflare R2 存储。免费用户可取消以节省存储空间。</span>
                     </div>
                   </label>
                     {supportsUpload && (
@@ -388,7 +388,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                           {migrating ? <Loader2 className="animate-spin w-4 h-4" /> : <Upload size={16} />}
                           {migrating ? '迁移中...' : '迁移历史图标到平台存储'}
                         </button>
-                        <p className="text-[10px] text-slate-400 text-center">将历史链接的域名图标抓取后缓存到平台存储（EdgeOne → Blob，Cloudflare → R2），系统自动检测。关闭「边缘抓取缓存」后改用上游源。</p>
+                        <p className="text-[10px] text-slate-400 text-center">将历史链接的域名图标抓取后缓存到 Cloudflare R2 存储，系统自动检测。关闭「边缘抓取缓存」后改用上游源。</p>
                       </>
                     )}
                   </div>

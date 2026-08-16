@@ -13,7 +13,6 @@ export interface LinkItem {
   iconType?: string;
   iconConfig?: Record<string, unknown>;
   customIconUrl?: string;
-  edgeoneBlobUrl?: string;
   cloudflareR2Url?: string;
 }
 
@@ -62,7 +61,7 @@ export interface AIConfig {
 }
 
 // 图标获取方式类型
-export type IconSourceType = 'faviconextractor' | 'google' | 'customapi' | 'customurl' | 'upload-edgeone' | 'upload-cloudflare';
+export type IconSourceType = 'faviconextractor' | 'google' | 'customapi' | 'customurl' | 'upload-cloudflare';
 
 // 图标配置
 export interface IconConfig {

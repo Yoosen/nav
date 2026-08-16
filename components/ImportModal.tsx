@@ -29,7 +29,7 @@ const ImportModal: React.FC<ImportModalProps> = ({
   const [analyzingMsg, setAnalyzingMsg] = useState('正在分析文件...');
 
   const restoreUploadedIcons = async (
-    uploadedIcons: Array<{ key: string, platform: 'edgeone' | 'cloudflare', data: string }>,
+    uploadedIcons: Array<{ key: string, platform: 'cloudflare', data: string }>,
     linksList: LinkItem[],
     onProgress?: (current: number, total: number) => void
   ) => {
@@ -72,7 +72,6 @@ const ImportModal: React.FC<ImportModalProps> = ({
 
             updatedLinks.forEach(l => {
               if (l.icon === oldUrl) l.icon = newUrl;
-              if (l.edgeoneBlobUrl === oldUrl) l.edgeoneBlobUrl = newUrl;
               if (l.cloudflareR2Url === oldUrl) l.cloudflareR2Url = newUrl;
             });
           }
