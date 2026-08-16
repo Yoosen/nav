@@ -14,7 +14,7 @@
     "typescript",
     "vite"
   ],
-  "author": "eallion",
+  "author": "Yoosen",
   "license": "MIT",
   "homepage": "https://github.com/Yoosen/nav",
   "repository": {
@@ -28,6 +28,7 @@
     "node": ">=18.0.0",
     "pnpm": ">=8.0.0"
   },
+  "packageManager": "pnpm@10.11.1",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
