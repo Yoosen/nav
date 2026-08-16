@@ -1,5 +1,5 @@
 // 认证接口
-// 支持 EdgeOne Pages / Cloudflare Workers
+// 支持 Cloudflare Workers
 
 import { getKV, getCorsHeaders, jsonResponse } from './_kvAdapter.js';
 

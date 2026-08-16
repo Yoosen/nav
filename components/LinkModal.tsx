@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, Sparkles, Loader2, Pin, Wand2, Trash2 } from 'lucide-react';
 import { LinkItem, Category, AIConfig, IconSourceType, IconConfig } from '../types';
 import { generateLinkDescription, suggestCategory } from '../services/geminiService';
@@ -31,6 +31,28 @@ const LinkModal: React.FC<LinkModalProps> = ({ isOpen, onClose, onSave, onDelete
   const [customIconUrl, setCustomIconUrl] = useState('');
 
   const [cloudflareR2Url, setCloudflareR2Url] = useState('');
+  const [isFetchingMeta, setIsFetchingMeta] = useState(false);
+  const descriptionTouched = useRef(false);
+
+  // URL 失焦时自动抓取网站 meta 描述（仅当用户未手动编辑过描述）
+  const autoFetchMeta = async (rawUrl: string) => {
+    const trimmed = rawUrl.trim();
+    if (!trimmed) return;
+    if (descriptionTouched.current && description.trim()) return;
+    setIsFetchingMeta(true);
+    try {
+      const target = /^https?:\/\//i.test(trimmed) ? trimmed : 'https://' + trimmed;
+      const res = await fetch(`/api/fetch-meta?url=${encodeURIComponent(target)}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.description) setDescription(data.description);
+      if (data.title && !title.trim()) setTitle(data.title);
+    } catch (err) {
+      console.warn('autoFetchMeta failed:', err);
+    } finally {
+      setIsFetchingMeta(false);
+    }
+  };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, targetType: 'upload-cloudflare') => {
     const file = e.target.files?.[0];
@@ -233,6 +255,7 @@ const LinkModal: React.FC<LinkModalProps> = ({ isOpen, onClose, onSave, onDelete
         
         setCustomIconUrl(initialCustom);
         setCloudflareR2Url(initialCloudflare);
+        descriptionTouched.current = true;
 
         if (initialData.iconType === 'customapi' && initialData.iconConfig) {
           setCustomApiUrl((initialData.iconConfig.customApiUrl as string) || '');
@@ -262,6 +285,7 @@ const LinkModal: React.FC<LinkModalProps> = ({ isOpen, onClose, onSave, onDelete
         setIconType('google');
         setCustomIconUrl('');
         setCloudflareR2Url('');
+        descriptionTouched.current = false;
         setCustomApiUrl('');
         setCustomApiParam('URL');
       }
@@ -518,6 +542,7 @@ const LinkModal: React.FC<LinkModalProps> = ({ isOpen, onClose, onSave, onDelete
                 required
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
+                onBlur={(e) => autoFetchMeta(e.target.value)}
                 className="w-full p-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                 placeholder="example.com 或 https://..."
               />
@@ -698,7 +723,14 @@ const LinkModal: React.FC<LinkModalProps> = ({ isOpen, onClose, onSave, onDelete
           <div>
             <div className="flex justify-between items-center mb-1">
                 <label className="block text-sm font-medium dark:text-slate-300">描述 (选填)</label>
-                {(title && url) && (
+                <div className="flex items-center gap-3">
+                  {isFetchingMeta && (
+                    <span className="text-xs flex items-center gap-1 text-blue-500 dark:text-blue-400">
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      自动获取中
+                    </span>
+                  )}
+                  {(title && url) && (
                     <button
                         type="button"
                         onClick={handleAIAssist}
@@ -708,11 +740,12 @@ const LinkModal: React.FC<LinkModalProps> = ({ isOpen, onClose, onSave, onDelete
                         {isGenerating ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
                         AI 自动填写
                     </button>
-                )}
+                  )}
+                </div>
             </div>
             <textarea
               value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              onChange={(e) => { descriptionTouched.current = true; setDescription(e.target.value); }}
               className="w-full p-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all h-20 resize-none"
               placeholder="简短描述..."
             />

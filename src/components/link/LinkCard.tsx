@@ -215,7 +215,7 @@ export function LinkCard({
                 </h3>
               </div>
               {link.description && (
-                <p className="w-full md:hidden text-sm text-slate-600 dark:text-slate-400 leading-relaxed overflow-hidden text-ellipsis whitespace-nowrap" title={link.description}>
+                <p className="w-full md:hidden text-sm text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2" title={link.description}>
                   {link.description}
                 </p>
               )}
@@ -227,7 +227,7 @@ export function LinkCard({
                   {link.title}
                 </h3>
                 {link.description && (
-                  <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed w-full min-w-0 overflow-hidden text-ellipsis whitespace-nowrap" title={link.description}>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed w-full min-w-0 line-clamp-2" title={link.description}>
                     {link.description}
                   </p>
                 )}

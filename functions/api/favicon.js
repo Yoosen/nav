@@ -1,5 +1,5 @@
-// EdgeOne Pages & Cloudflare Pages Favicon 统一缓存与代理接口
-// 支持在 EdgeOne Pages (Blob 存储) / Cloudflare Pages (R2 存储) 上使用二进制缓存
+// Cloudflare Pages Favicon 缓存与代理接口
+// 使用 Cloudflare R2 二进制缓存
 // 简洁注释以遵循用户全局规则
 
 import { getCorsHeaders, jsonResponse, getKV } from './_kvAdapter.js';
@@ -100,50 +100,21 @@ export async function onRequest(context) {
   const isCloudflareR2 = (env.CLOUDNAV_R2 && typeof env.CLOUDNAV_R2.get === 'function') || env.UPLOAD_PLATFORM === 'cloudflare';
   const storageKey = key || `favicon:${domain}`;
 
-  // 1. 尝试从 R2 或 Blob 中获取数据
+  // 1. 尝试从 R2 中获取数据
   try {
-    if (isCloudflareR2) {
-      if (env.CLOUDNAV_R2) {
-        const object = await env.CLOUDNAV_R2.get(storageKey);
-        if (object) {
-          const cached = await object.arrayBuffer();
-          const mime = detectMimeType(cached);
-          return new Response(cached, {
-            status: 200,
-            headers: {
-              'Content-Type': mime,
-              'Cache-Control': 'public, max-age=31536000, immutable',
-              ...corsHeaders
-            }
-          });
-        }
-      }
-    } else {
-      // EdgeOne Pages Blob
-      let getStore;
-      try {
-        const blobSdk = await import('@edgeone/pages-blob');
-        getStore = blobSdk.getStore;
-      } catch (e) {
-        console.warn('Failed to import @edgeone/pages-blob for read:', e);
-      }
-
-      if (getStore) {
-        const store = getStore('favicons');
-        const cached = await store.get(storageKey, { type: 'arrayBuffer' });
-        if (cached) {
-          const mime = detectMimeType(cached);
-          return new Response(cached, {
-            status: 200,
-            headers: {
-              'Content-Type': mime,
-              'Cache-Control': 'public, max-age=31536000, immutable',
-              ...corsHeaders
-            }
-          });
-        }
-      } else {
-        console.warn('Blob store not available for read (getStore is undefined)');
+    if (isCloudflareR2 && env.CLOUDNAV_R2) {
+      const object = await env.CLOUDNAV_R2.get(storageKey);
+      if (object) {
+        const cached = await object.arrayBuffer();
+        const mime = detectMimeType(cached);
+        return new Response(cached, {
+          status: 200,
+          headers: {
+            'Content-Type': mime,
+            'Cache-Control': 'public, max-age=31536000, immutable',
+            ...corsHeaders
+          }
+        });
       }
     }
   } catch (err) {
@@ -171,38 +142,17 @@ export async function onRequest(context) {
     }
   }
 
-  // 3. 抓取成功，存入 R2 或 Blob 并返回
+  // 3. 抓取成功，存入 R2 并返回
   if (buffer) {
-    if (cacheEnabled) {
+    if (cacheEnabled && isCloudflareR2 && env.CLOUDNAV_R2) {
       try {
-        if (isCloudflareR2) {
-          if (env.CLOUDNAV_R2) {
-            const mime = detectMimeType(buffer);
-            await env.CLOUDNAV_R2.put(storageKey, buffer, {
-              httpMetadata: {
-                contentType: mime,
-                cacheControl: 'public, max-age=31536000'
-              }
-            });
+        const mime = detectMimeType(buffer);
+        await env.CLOUDNAV_R2.put(storageKey, buffer, {
+          httpMetadata: {
+            contentType: mime,
+            cacheControl: 'public, max-age=31536000'
           }
-        } else {
-          let getStore;
-          try {
-            const blobSdk = await import('@edgeone/pages-blob');
-            getStore = blobSdk.getStore;
-          } catch (e) {
-            console.warn('Failed to import @edgeone/pages-blob for write:', e);
-          }
-
-          if (getStore) {
-            const store = getStore('favicons');
-            await store.set(storageKey, buffer, {
-              cacheControl: 'public, max-age=31536000'
-            });
-          } else {
-            console.warn('Blob store not available for write (getStore is undefined)');
-          }
-        }
+        });
       } catch (err) {
         console.error('Storage write error:', err);
       }

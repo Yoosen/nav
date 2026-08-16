@@ -72,7 +72,6 @@ export async function onRequest(context) {
 
         if (link.icon?.startsWith('/api/favicon?key=') ||
             link.icon?.startsWith('/api/favicon?domain=') ||
-            link.iconType === 'upload-edgeone' ||
             link.iconType === 'upload-cloudflare') {
           skipped++;
           continue;
@@ -115,20 +114,6 @@ export async function onRequest(context) {
               httpMetadata: { contentType: mime, cacheControl: 'public, max-age=31536000' }
             });
             storageOk = true;
-          } else {
-            let getStore;
-            try {
-              const blobSdk = await import('@edgeone/pages-blob');
-              getStore = blobSdk.getStore;
-            } catch (e) {}
-
-            if (getStore) {
-              const store = getStore('favicons');
-              await store.set(storageKey, buffer, {
-                cacheControl: 'public, max-age=31536000'
-              });
-              storageOk = true;
-            }
           }
 
           if (!storageOk) {
