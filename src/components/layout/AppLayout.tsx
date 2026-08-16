@@ -27,7 +27,7 @@ export function AppLayout() {
   const { authToken, requiresAuth, isCheckingAuth, capabilities, login, logout } = useAuthContext();
   const { links = [], addLink, updateLink, deleteLink, deleteLinks, setLinksAndSync } = useLinksContext();
   const { categories = [], categoryTree = [], setCategoriesAndSync, unlockedCategoryIds = new Set(), unlockCategory } = useCategoriesContext();
-  const { ai: aiConfig, icon: iconConfig, viewMode, showPinnedWebsites, ticker, weather, website, webdav, search, setAI, setIcon, setWebsite, setShowPinned, setMastodon, setWeather, setWebDav, setSearch, setViewMode } = useConfigContext();
+  const { ai: aiConfig, icon: iconConfig, viewMode, showPinnedWebsites, weather, website, webdav, search, setAI, setIcon, setWebsite, setShowPinned, setWeather, setWebDav, setSearch, setViewMode } = useConfigContext();
 
   // Hooks
   const { 
@@ -146,7 +146,7 @@ export function AppLayout() {
   // Apply dynamic website title and favicon
   useEffect(() => {
     if (aiConfig) {
-      document.title = aiConfig.websiteTitle || '蜗牛个人导航';
+      document.title = aiConfig.websiteTitle || '个人导航';
       
       let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
       if (!link) {
@@ -563,7 +563,6 @@ export function AppLayout() {
             onSettingsLoaded={(settings) => {
               setAI(settings.ai);
               setWebsite({ ...website, passwordExpiry: settings.passwordExpiry });
-              setMastodon(settings.ticker);
               setWeather(settings.weather);
               setShowPinned(settings.showPinnedWebsites);
               if (settings.defaultViewMode) {

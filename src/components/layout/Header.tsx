@@ -3,7 +3,6 @@ import { Search, X, Plus, Moon, Sun, Menu, Settings, Upload, CheckSquare, LogOut
 import { useConfigContext } from '../../contexts/ConfigContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLinksContext } from '../../contexts/LinksContext';
-import MastodonTicker from '../../../components/MastodonTicker';
 import WeatherDisplay from '../../../components/WeatherDisplay';
 import { useState, useRef, useEffect } from 'react';
 import { SEARCH_ENGINES } from '../../constants';
@@ -163,7 +162,7 @@ export function Header({
   isEditMode, onToggleEditMode,
   visitorEngineId, onVisitorEngineChange,
 }: HeaderProps) {
-  const { ai, darkMode, setDarkMode, viewMode, setViewMode, ticker, weather, search } = useConfigContext();
+  const { ai, darkMode, setDarkMode, viewMode, setViewMode, weather, search } = useConfigContext();
   const { authToken, logout } = useAuthContext();
   const { syncStatus } = useLinksContext();
   const [showDropdown, setShowDropdown] = useState(false);
@@ -195,7 +194,7 @@ export function Header({
             <Menu size={24} />
           </button>
           <h1 className={`${isMobileSearchOpen ? 'hidden' : 'hidden sm:block'} text-lg font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent shrink-0`}>
-            {ai?.navigationName || '蜗牛个人导航'}
+            {ai?.navigationName || ''}
           </h1>
         </div>
 
@@ -236,7 +235,7 @@ export function Header({
                 autoFocus
                 onChange={(e) => onSearchChange(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && onSearch(searchQuery)}
-                placeholder={isInternal ? "搜索站内链接，点击图标（彩色时）搜索互联网" : "搜索互联网，点击图标（灰色时）站内搜索"}
+                placeholder={isInternal ? "" : ""}
                 className="w-full pl-9 pr-4 py-2 h-[36px] rounded-full bg-slate-200 dark:bg-slate-700 border-none text-xs focus:ring-2 focus:ring-blue-500 dark:text-white placeholder-slate-400 outline-none transition-all leading-none"
                 style={{ fontSize: '16px' }}
                 inputMode="search"
@@ -262,34 +261,26 @@ export function Header({
           </div>
         )}
 
-        {/* Middle: Spacer */}
-        <div className={`${isMobileSearchOpen ? 'hidden md:flex' : 'flex-1'}`} />
+        {/* Middle: Always-visible centered search (desktop) */}
+        <div className={`${isMobileSearchOpen ? 'hidden' : 'hidden md:flex flex-1 justify-center px-4'}`}>
+          <div className="w-full max-w-[420px] lg:max-w-[560px]">
+            <HeaderSearch
+              searchQuery={searchQuery}
+              onSearchChange={onSearchChange}
+              isInternal={isInternal}
+              onInternalChange={onInternalChange}
+              onSearch={onSearch}
+              visitorEngineId={visitorEngineId}
+              onVisitorEngineChange={onVisitorEngineChange}
+              isExpanded={isSearchExpanded}
+              setIsExpanded={setIsSearchExpanded}
+              forceExpanded
+            />
+          </div>
+        </div>
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2">
-          {/* Ticker & Search Shared Container */}
-          <div className="hidden md:flex items-center gap-2 w-[240px] lg:w-[360px] xl:w-[512px] shrink-0">
-            {/* 1. Ticker (Now First) */}
-            <div className={`transition-all duration-300 min-w-0 overflow-hidden ${isSearchExpanded ? 'w-9' : 'flex-1'}`}>
-              <MastodonTicker config={ticker} isCollapsed={isSearchExpanded} />
-            </div>
-
-            {/* 2. Search (Now Second) */}
-            <div className={`transition-all duration-300 min-w-0 ${isSearchExpanded ? 'flex-1' : 'w-9'}`}>
-              <HeaderSearch
-                searchQuery={searchQuery}
-                onSearchChange={onSearchChange}
-                isInternal={isInternal}
-                onInternalChange={onInternalChange}
-                onSearch={onSearch}
-                visitorEngineId={visitorEngineId}
-                onVisitorEngineChange={onVisitorEngineChange}
-                isExpanded={isSearchExpanded}
-                setIsExpanded={setIsSearchExpanded}
-              />
-            </div>
-          </div>
-
           {/* Mobile search toggle */}
           {!isMobileSearchOpen && (
             <button onClick={onToggleMobileSearch} className="md:hidden p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 cursor-pointer">
@@ -458,7 +449,8 @@ export function Header({
 // Sub-component for the expandable desktop search
 function HeaderSearch({ 
   searchQuery, onSearchChange, isInternal, onInternalChange, onSearch,
-  visitorEngineId, onVisitorEngineChange, isExpanded, setIsExpanded
+  visitorEngineId, onVisitorEngineChange, isExpanded, setIsExpanded,
+  forceExpanded = false
 }: { 
   searchQuery: string; 
   onSearchChange: (q: string) => void; 
@@ -469,6 +461,7 @@ function HeaderSearch({
   onVisitorEngineChange?: (id: string) => void;
   isExpanded: boolean;
   setIsExpanded: (val: boolean) => void;
+  forceExpanded?: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -476,6 +469,7 @@ function HeaderSearch({
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownTimer = useRef<NodeJS.Timeout | null>(null);
   const ignoreHover = useRef(false);
+  const expanded = forceExpanded || isExpanded;
 
   const handleExpand = () => {
     setIsExpanded(true);
@@ -485,7 +479,7 @@ function HeaderSearch({
   };
 
   const handleClose = () => {
-    setIsExpanded(false);
+    if (!forceExpanded) setIsExpanded(false);
     onSearchChange('');
     if (inputRef.current) {
       inputRef.current.blur();
@@ -505,11 +499,11 @@ function HeaderSearch({
         handleClose();
       }
     };
-    if (isExpanded) {
+    if (expanded && !forceExpanded) {
       document.addEventListener('mousedown', handleClickOutside);
     }
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isExpanded]);
+  }, [expanded, forceExpanded]);
 
   const engine = visitorEngineId || search?.defaultEngine || 'internal';
 
@@ -527,17 +521,17 @@ function HeaderSearch({
     <div ref={containerRef} className="flex items-center justify-end w-full h-full">
       <div 
         className={`flex items-center rounded-full h-9 transition-all duration-300 ease-in-out w-full ${
-          isExpanded 
+          expanded 
             ? 'bg-slate-200 dark:bg-slate-700 px-3 shadow-sm border border-slate-200 dark:border-slate-600' 
             : 'bg-slate-200 dark:bg-slate-700 justify-center cursor-pointer hover:bg-slate-300 dark:hover:bg-slate-600'
         }`}
         onClick={() => {
-          if (!isExpanded) {
+          if (!expanded) {
             handleExpand();
           }
         }}
       >
-        {isExpanded && (
+        {expanded && (
           <div 
             className="relative flex items-center h-full mr-2 shrink-0"
             onMouseEnter={handleMouseEnter}
@@ -579,14 +573,14 @@ function HeaderSearch({
             if (e.key === 'Enter') onSearch(searchQuery);
             if (e.key === 'Escape') handleClose();
           }}
-          placeholder={isInternal ? "搜索站内链接，点击图标（彩色时）搜索互联网" : "搜索互联网，点击图标（灰色时）站内搜索"}
+          placeholder={isInternal ? "" : ""}
           className={`bg-transparent border-none text-xs focus:ring-0 dark:text-white placeholder-slate-400 outline-none h-full transition-all duration-300 ${
-            isExpanded ? 'flex-1 min-w-0 opacity-100' : 'w-0 opacity-0 pointer-events-none'
+            expanded ? 'flex-1 min-w-0 opacity-100' : 'w-0 opacity-0 pointer-events-none'
           }`}
-          tabIndex={isExpanded ? 0 : -1}
+          tabIndex={expanded ? 0 : -1}
         />
 
-        {isExpanded && searchQuery ? (
+        {expanded && searchQuery ? (
           <button 
             onClick={(e) => {
               e.stopPropagation();
@@ -597,7 +591,7 @@ function HeaderSearch({
             <X size={14} />
           </button>
         ) : (
-          <Search size={isExpanded ? 16 : 18} className={`${isExpanded ? 'text-slate-400 shrink-0 ml-2' : 'text-slate-500 dark:text-slate-400'}`} />
+          <Search size={expanded ? 16 : 18} className={`${expanded ? 'text-slate-400 shrink-0 ml-2' : 'text-slate-500 dark:text-slate-400'}`} />
         )}
       </div>
     </div>

@@ -1,6 +1,7 @@
 import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
+import { localFunctionsPlugin } from './vite.local-functions.mjs';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
@@ -13,6 +14,9 @@ export default defineConfig(({ mode }) => {
       },
       plugins: [
         react(),
+        // 本地开发：用内存 KV 运行 functions/api/*.js，使后台可登录
+        // 生产部署由 Cloudflare/EdgeOne Pages Functions 接管，此插件仅 dev 生效
+        localFunctionsPlugin({ env }),
       ],
       // define: {
       //   // 移除API密钥暴露到前端的配置

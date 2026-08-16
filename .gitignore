@@ -1,0 +1,14 @@
+node_modules
+.env
+.env.local
+.dev.vars
+.wrangler
+
+# 构建产物（由 CI/Cloudflare Pages 构建，不提交）
+dist
+
+# 本地 IDE / 工具数据
+.codebuddy
+
+# npm 误生成的锁文件（项目使用 pnpm，以 pnpm-lock.yaml 为准）
+package-lock.json
