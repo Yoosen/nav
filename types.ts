@@ -185,7 +185,7 @@ export interface AppConfig {
 }
 
 export const DEFAULT_CATEGORIES: Category[] = [
-  { id: "common", name: "常用推荐", icon: "Star" },
+  { id: "common", name: "常用推荐", icon: "⭐️" },
   { id: "tools","name":"工具","icon":"Folder","isSubcategory":false},
   { id: "life","name":"生活工具","icon":"Target","parentId":"tools","isSubcategory":true},
   { id: "network","name":"网络工具","icon":"Wifi","parentId":"tools","isSubcategory":true},

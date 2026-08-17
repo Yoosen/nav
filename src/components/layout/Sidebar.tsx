@@ -92,7 +92,7 @@ export function Sidebar({ isOpen, onClose, activeCategoryId, onOpenCatManager, o
         {/* Logo / 时钟（点击切换侧边栏收起） */}
         <div
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="h-16 flex items-center justify-start gap-3.5 pl-4 pr-4 relative border-b border-slate-100 dark:border-slate-700 shrink-0 transition-all duration-300 cursor-pointer select-none"
+          className="h-16 flex items-center justify-start gap-6.5 pl-4 pr-4 relative border-b border-slate-100 dark:border-slate-700 shrink-0 transition-all duration-300 cursor-pointer select-none"
           title={isCollapsed ? '展开侧边栏' : '折叠侧边栏'}
         >
           <img src="/icon-192.png" alt="logo" className="w-7 h-7 shrink-0" />
@@ -143,7 +143,7 @@ export function Sidebar({ isOpen, onClose, activeCategoryId, onOpenCatManager, o
           <div className={`mx-2 border-b border-slate-100 dark:border-slate-700/50 transition-all duration-300 ${isCollapsed ? 'mb-4 mt-2' : 'mb-0 mt-0 h-0 border-transparent opacity-0'}`}></div>
 
           {/* 分类树 */}
-          {categoryTree.map(cat => renderCategoryNode(cat, 0))}
+          {categoryTree.filter(cat => cat.id !== 'common').map(cat => renderCategoryNode(cat, 0))}
         </div>
 
         {/* Footer - Spacer or simple copyright if needed */}

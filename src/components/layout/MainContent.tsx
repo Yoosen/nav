@@ -109,7 +109,7 @@ export function MainContent({
         <section id="cat-pinned">
           <PinnedSection
             links={pinnedLinks}
-            viewMode={viewMode}
+            viewMode="compact"
             isBatchEditMode={isBatchEditMode}
             selectedLinks={selectedLinks}
             onToggleSelection={onToggleSelection}
@@ -126,8 +126,8 @@ export function MainContent({
         </section>
       )}
 
-      {/* All categories */}
-      {categoryTree.map(cat => {
+      {/* All categories (排除默认"常用推荐"分类，已用置顶/常用代替) */}
+      {categoryTree.filter(cat => cat.id !== 'common').map(cat => {
         const catLinks = safeGetLinksByCategory(cat.id);
         const subcategoryLinks = cat.children?.flatMap(child => safeGetLinksByCategory(child.id)) || [];
 

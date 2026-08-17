@@ -29,24 +29,17 @@ export function PinnedSection({
 }: PinnedSectionProps) {
   const sortedLinks = [...(links || [])].sort((a, b) => (a.pinnedOrder ?? 0) - (b.pinnedOrder ?? 0));
 
-  const gridClass = viewMode === 'detailed'
-    ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6'
-    : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 3xl:grid-cols-10';
-
   return (
     <div>
       <div className="flex items-center gap-2 mb-4">
         <Pin size={16} className="text-blue-500 fill-blue-500" />
         <h2 className="text-sm font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-          置顶 / 常用
+          置顶
         </h2>
-        <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 rounded-full">
-          {links.length}
-        </span>
       </div>
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
         <SortableContext items={sortedLinks.map(l => l.id)} strategy={rectSortingStrategy}>
-          <div className={`grid gap-3 ${gridClass}`}>
+          <div className="flex flex-wrap gap-3">
             {sortedLinks.map(link => (
               <LinkCard
                 key={link.id}
@@ -62,6 +55,8 @@ export function PinnedSection({
                 isDraggable={isDraggable}
                 isEditMode={isEditMode}
                 onWeightChange={onWeightChange}
+                hideDescription
+                small
               />
             ))}
           </div>

@@ -18,17 +18,17 @@ interface LinkCardProps {
   authToken?: string | null;
   isEditMode?: boolean;
   onWeightChange?: (linkId: string, weight: number) => void;
+  hideDescription?: boolean;
+  small?: boolean;
 }
 
 export function LinkCard({
   link, viewMode, isBatchEditMode, isSelected,
   onToggleSelection, onEdit, onDelete, onContextMenu,
-  isDraggable = true, authToken, isEditMode = false, onWeightChange,
+  isDraggable = true, authToken, isEditMode = false, onWeightChange, hideDescription = false, small = false,
 }: LinkCardProps) {
   const [imgError, setImgError] = useState(false);
   const [color, setColor] = useState<ExtractedColor | null>(null);
-  const [isEditingWeight, setIsEditingWeight] = useState(false);
-  const [weightValue, setWeightValue] = useState(link.weight?.toString() || '0');
   const [isVisible, setIsVisible] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -119,14 +119,6 @@ export function LinkCard({
     }
   };
 
-  const handleWeightSave = () => {
-    const num = parseInt(weightValue, 10);
-    if (!isNaN(num) && onWeightChange) {
-      onWeightChange(link.id, num);
-    }
-    setIsEditingWeight(false);
-  };
-
   return (
     <div
       ref={mergedRef}
@@ -135,11 +127,13 @@ export function LinkCard({
       className={`link-card group relative transition-all duration-200 ${
         isSelected
           ? 'bg-red-50/70 dark:bg-red-900/30 border-red-200 dark:border-red-800'
-          : 'bg-white/55 dark:bg-slate-800 backdrop-blur-md border-slate-200 dark:border-slate-700'
+          : 'bg-white/20 dark:bg-slate-800/30 border border-transparent hover:bg-white/80 dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-600 hover:-translate-y-0.5 hover:shadow-md'
       } ${isBatchEditMode ? 'cursor-pointer' : isDraggable ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'} ${
         isDetailedView
-          ? 'flex flex-col rounded-2xl border shadow-sm p-4 min-h-[100px] items-start justify-start text-left w-full min-w-0'
-          : 'flex items-center justify-between rounded-xl border shadow-sm p-3'
+          ? 'flex flex-col rounded-2xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] p-4 min-h-[100px] items-start justify-start text-left w-full min-w-0'
+          : small
+            ? 'flex items-center justify-center rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.06)] p-2 w-[130px] bg-white/70 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800 hover:border-slate-200 dark:hover:border-slate-600 hover:-translate-y-0.5 hover:shadow-md'
+            : 'flex items-center justify-between rounded-xl shadow-[0_1px_3px_rgba(0,0,0,0.04)] p-2'
       } ${isDragging ? 'shadow-2xl scale-105' : ''}`}
       onClick={handleClick}
       onContextMenu={(e) => onContextMenu(e, link)}
@@ -169,36 +163,6 @@ export function LinkCard({
         </div>
       )}
 
-      {/* Weight badge */}
-      {isEditMode && onWeightChange && (
-        <div className="absolute top-2 left-2 z-10">
-          {isEditingWeight ? (
-            <input
-              type="number"
-              value={weightValue}
-              onChange={(e) => setWeightValue(e.target.value)}
-              onBlur={handleWeightSave}
-              onKeyDown={(e) => e.key === 'Enter' && handleWeightSave()}
-              className="w-12 h-6 text-xs text-center bg-white dark:bg-slate-700 border border-blue-400 rounded px-1 outline-none"
-              onClick={(e) => e.stopPropagation()}
-              autoFocus
-            />
-          ) : (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsEditingWeight(true);
-                setWeightValue(link.weight?.toString() || '0');
-              }}
-              className="px-1.5 py-0.5 text-[10px] font-mono bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 rounded hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
-              title="点击编辑 weight"
-            >
-              w:{link.weight ?? 0}
-            </button>
-          )}
-        </div>
-      )}
-
       {/* Link content */}
       <div className={`icon-main flex flex-1 min-w-0 overflow-hidden h-full w-full ${
         isDetailedView ? 'flex-col md:flex-row md:gap-4 md:items-center' : 'items-center'
@@ -214,7 +178,7 @@ export function LinkCard({
                   {link.title}
                 </h3>
               </div>
-              {link.description && (
+              {!hideDescription && link.description && (
                 <p className="w-full md:hidden text-sm text-slate-600 dark:text-slate-400 leading-relaxed line-clamp-2" title={link.description}>
                   {link.description}
                 </p>
@@ -226,7 +190,7 @@ export function LinkCard({
                 <h3 className="text-slate-800 dark:text-slate-200 text-base font-medium w-full min-w-0 overflow-hidden text-ellipsis whitespace-nowrap group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" title={link.title}>
                   {link.title}
                 </h3>
-                {link.description && (
+                {!hideDescription && link.description && (
                   <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed w-full min-w-0 line-clamp-2" title={link.description}>
                     {link.description}
                   </p>
@@ -236,15 +200,15 @@ export function LinkCard({
           </>
         ) : (
           <>
-            <div className="flex items-center gap-3 w-full">
-              <div className="text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm font-bold uppercase shrink-0 w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-700">
-                {iconSrc ? <img src={iconSrc} alt="" className="w-5 h-5" loading="lazy" onError={() => setImgError(true)} /> : link.title.charAt(0).toUpperCase()}
+            <div className={`flex items-center gap-2 ${small ? 'w-full justify-start' : 'w-full'}`}>
+              <div className="text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm font-bold uppercase shrink-0 w-6 h-6 rounded-lg bg-slate-50 dark:bg-slate-700">
+                {iconSrc ? <img src={iconSrc} alt="" className="w-4 h-4" loading="lazy" onError={() => setImgError(true)} /> : link.title.charAt(0).toUpperCase()}
               </div>
               <h3 className="text-sm font-medium text-slate-800 dark:text-slate-200 truncate whitespace-nowrap overflow-hidden text-ellipsis group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" title={link.title}>
                 {link.title}
               </h3>
             </div>
-            {link.description && (
+            {!hideDescription && link.description && (
               <div className="tooltip-custom absolute left-0 -top-8 w-max max-w-[200px] bg-black text-white text-xs p-2 rounded opacity-0 invisible group-hover:visible group-hover:opacity-100 transition-all z-20 pointer-events-none truncate">
                 {link.description}
               </div>
