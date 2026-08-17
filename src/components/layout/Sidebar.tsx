@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { LayoutGrid, Settings, Upload, X, Loader2, CheckCircle2, AlertCircle, Lock, ChevronDown, ChevronRight, PanelLeftOpen } from 'lucide-react';
+import { LayoutGrid, Settings, Upload, X, Loader2, CheckCircle2, AlertCircle, Lock, ChevronDown, ChevronRight } from 'lucide-react';
 import { useCategoriesContext, CategoryWithChildren } from '../../contexts/CategoriesContext';
 import { useConfigContext } from '../../contexts/ConfigContext';
 import { useAuthContext } from '../../contexts/AuthContext';
@@ -92,19 +92,15 @@ export function Sidebar({ isOpen, onClose, activeCategoryId, onOpenCatManager, o
         {/* Logo / 时钟（点击切换侧边栏收起） */}
         <div
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="h-16 flex items-center justify-center px-4 relative border-b border-slate-100 dark:border-slate-700 shrink-0 transition-all duration-300 cursor-pointer select-none"
+          className="h-16 flex items-center justify-start gap-3.5 pl-4 pr-4 relative border-b border-slate-100 dark:border-slate-700 shrink-0 transition-all duration-300 cursor-pointer select-none"
           title={isCollapsed ? '展开侧边栏' : '折叠侧边栏'}
         >
+          <img src="/icon-192.png" alt="logo" className="w-7 h-7 shrink-0" />
           <div className={`transition-all ease-in-out ${
             isCollapsed ? 'max-w-0 opacity-0 duration-150 overflow-hidden' : 'max-w-[240px] opacity-100 duration-300 delay-150'
           }`}>
             <ClockWidget compact />
           </div>
-          {isCollapsed && (
-            <div className="hidden lg:flex absolute p-1.5 rounded-lg text-slate-500">
-              <PanelLeftOpen size={20} />
-            </div>
-          )}
           <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="lg:hidden absolute right-4 p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
             <X size={18} />
           </button>
