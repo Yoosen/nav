@@ -12,3 +12,5 @@ dist
 
 # npm 误生成的锁文件（项目使用 pnpm，以 pnpm-lock.yaml 为准）
 package-lock.json
+
+.DS_Store
