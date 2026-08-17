@@ -33,6 +33,7 @@ const IconSelector: React.FC<IconSelectorProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedIcon, setSelectedIcon] = useState('Folder');
+  const [emojiInput, setEmojiInput] = useState('');
 
   // 获取当前目标图标
   const getCurrentIcon = () => {
@@ -109,10 +110,26 @@ const IconSelector: React.FC<IconSelectorProps> = ({
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+      <div className="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 space-y-3">
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-slate-500 dark:text-slate-400 shrink-0">或输入 emoji:</span>
+          <input
+            type="text"
+            value={emojiInput}
+            onChange={(e) => {
+              const val = e.target.value;
+              setEmojiInput(val);
+              if (val.trim()) {
+                setSelectedIcon(val.trim());
+              }
+            }}
+            placeholder="例如 🚀 📚 ⭐"
+            className="flex-1 px-3 py-1.5 text-sm rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+          />
+        </div>
         <div className="flex items-center justify-between">
           <span className="text-xs text-slate-500 dark:text-slate-400">
-            提示：也可以直接输入 emoji 作为图标
+            当前选择: <span className="font-medium dark:text-slate-200">{selectedIcon}</span>
           </span>
           <button
             onClick={handleConfirm}

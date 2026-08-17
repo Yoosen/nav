@@ -186,16 +186,13 @@ export function Header({
   }, [authToken]);
 
   return (
-    <header className="sticky top-0 z-30 bg-white/95 dark:bg-slate-800/95 md:bg-white/80 md:dark:bg-slate-800/50 md:backdrop-blur-md border-b border-slate-200 dark:border-slate-700">
+    <header className="sticky top-0 z-30 bg-white/30 dark:bg-slate-800 md:backdrop-blur-md border-b border-white/40 dark:border-slate-700">
       <div className="relative flex items-center justify-between px-4 lg:px-8 h-16">
-        {/* Left: Menu + Logo */}
+        {/* Left: Menu */}
         <div className="flex items-center gap-3">
           <button onClick={onToggleSidebar} className="lg:hidden p-2 -ml-2 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-lg cursor-pointer transition-colors">
             <Menu size={24} />
           </button>
-          <h1 className={`${isMobileSearchOpen ? 'hidden' : 'hidden sm:block'} text-lg font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent shrink-0`}>
-            {ai?.navigationName || ''}
-          </h1>
         </div>
 
         {/* Mobile Search Bar - Expands to fill space */}

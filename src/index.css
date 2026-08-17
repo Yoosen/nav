@@ -13,8 +13,7 @@ html.dark {
 /* 基础样式 */
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  /* 默认浅色模式 */
-  background-color: #f9fafb;
+  /* 默认浅色模式（底色由下方光晕规则统一设置 background-image） */
   color: #111827;
 }
 
@@ -24,16 +23,113 @@ html.dark body {
   color: var(--github-dimmed-text-primary);
 }
 
+/* ===== 动态朦胧背景（复刻 lrevan.top 的 blob 光晕效果） ===== */
+/* 动态朦胧背景（仅浅色模式；暗色模式保持原 GitHub Dimmed 实色风格） */
+:root {
+  /* 浅色：明显柔光 */
+  --blob-1: rgba(56, 152, 255, 0.55);   /* 天蓝 */
+  --blob-2: rgba(244, 114, 182, 0.50);  /* 粉 */
+  --blob-3: rgba(52, 211, 153, 0.46);   /* 薄荷绿 */
+  --blob-4: rgba(251, 191, 36, 0.50);   /* 暖黄 */
+  --blob-base: #f7f3ec;                 /* 浅色暖米色底（接近悦行） */
+}
+
+/* 浅色模式 body = 实色底色，光晕由 body::before 叠加（仅非 .dark 时） */
+body {
+  background-color: var(--blob-base);
+  transition: background-color .6s ease;
+}
+
+/* 光晕缓慢游动 + 呼吸缩放（备用，组件化小球为主） */
+@keyframes blobFloat {
+  0%   { transform: scale(1) translate(0, 0); }
+  50%  { transform: scale(1.08) translate(2%, -2%); }
+  100% { transform: scale(1.04) translate(-2%, 2%); }
+}
+
+/* ===== 漂浮小球动态背景（由 AmbientBackground 组件渲染，仅浅色模式） ===== */
+.ambient-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(12px);
+  opacity: 0.4;
+  will-change: transform;
+}
+
+.ambient-blob-1 {
+  width: 28vw; height: 28vw;
+  top: 0; left: 2vw;
+  background: radial-gradient(circle, #f9a8d4 0%, rgba(249,168,212,0) 72%);
+  animation: drift1 22s ease-in-out infinite alternate;
+}
+.ambient-blob-2 {
+  width: 14vw; height: 14vw;
+  top: 10vw; right: 6vw;
+  background: radial-gradient(circle, #4ca3ff 0%, rgba(76,163,255,0) 72%);
+  animation: drift2 26s ease-in-out infinite alternate;
+}
+.ambient-blob-3 {
+  width: 23vw; height: 23vw;
+  bottom: 2vw; left: 4vw;
+  background: radial-gradient(circle, #34d399 0%, rgba(52,211,153,0) 72%);
+  animation: drift3 24s ease-in-out infinite alternate;
+}
+.ambient-blob-4 {
+  width: 11vw; height: 11vw;
+  bottom: 8vw; right: 6vw;
+  background: radial-gradient(circle, #fbbf24 0%, rgba(251,191,36,0) 72%);
+  animation: drift4 28s ease-in-out infinite alternate;
+}
+
+/* 每个小球各自沿不同路径缓动漂浮 */
+@keyframes drift1 {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(8vw, 6vh) scale(1.1); }
+  100% { transform: translate(3vw, 12vh) scale(0.95); }
+}
+@keyframes drift2 {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(-10vw, 8vh) scale(1.05); }
+  100% { transform: translate(-4vw, 2vh) scale(1.12); }
+}
+@keyframes drift3 {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(-8vw, -6vh) scale(1.08); }
+  100% { transform: translate(-2vw, -10vh) scale(0.96); }
+}
+@keyframes drift4 {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(9vw, -7vh) scale(1.1); }
+  100% { transform: translate(4vw, -3vh) scale(1.04); }
+}
+
+/* ===== 隐藏滚动条（保留滚动功能） ===== */
+html {
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* IE/旧 Edge */
+}
+html::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;                  /* Chrome/Safari/Edge */
+}
+
+/* 暗色模式：恢复原本 GitHub Dimmed 实色背景，不加任何光晕 */
+html.dark body {
+  background-color: #1c2128;
+}
+
 /* 针对 Tailwind CSS v4 的媒体查询覆盖 */
 /* 当操作系统是暗色模式，但网站没有 .dark 类时，强制应用浅色样式 */
 @media (prefers-color-scheme: dark) {
   html:not(.dark) {
-    /* 重置所有可能的暗色背景 */
-    background: #f9fafb !important;
+    /* 重置所有可能的暗色背景（暖米色底，与亮色模式一致） */
+    background-color: #f7f3ec !important;
   }
 
   html:not(.dark) body {
-    background: #f9fafb !important;
+    background-color: #f7f3ec !important;
     color: #111827 !important;
   }
 
@@ -161,6 +257,11 @@ html.dark {
   color-scheme: dark;
   background-color: var(--github-dimmed-bg);
   color: var(--github-dimmed-text-primary);
+}
+
+/* 暗色模式基础背景放到 html 上（位于 blob 光晕之后），body 保持透明以透出光晕 */
+html.dark body {
+  background-color: transparent;
 }
 
 /* 背景色 - slate */

@@ -134,8 +134,8 @@ export function LinkCard({
       data-color-ready={!!color || undefined}
       className={`link-card group relative transition-all duration-200 ${
         isSelected
-          ? 'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800'
-          : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700'
+          ? 'bg-red-50/70 dark:bg-red-900/30 border-red-200 dark:border-red-800'
+          : 'bg-white/55 dark:bg-slate-800 backdrop-blur-md border-slate-200 dark:border-slate-700'
       } ${isBatchEditMode ? 'cursor-pointer' : isDraggable ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'} ${
         isDetailedView
           ? 'flex flex-col rounded-2xl border shadow-sm p-4 min-h-[100px] items-start justify-start text-left w-full min-w-0'

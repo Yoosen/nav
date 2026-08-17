@@ -1,11 +1,12 @@
 import React, { useCallback, useState } from 'react';
-import { LayoutGrid, Settings, Upload, X, Loader2, CheckCircle2, AlertCircle, Lock, ChevronDown, ChevronRight, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { LayoutGrid, Settings, Upload, X, Loader2, CheckCircle2, AlertCircle, Lock, ChevronDown, ChevronRight, PanelLeftOpen } from 'lucide-react';
 import { useCategoriesContext, CategoryWithChildren } from '../../contexts/CategoriesContext';
 import { useConfigContext } from '../../contexts/ConfigContext';
 import { useAuthContext } from '../../contexts/AuthContext';
 import { useLinksContext } from '../../contexts/LinksContext';
 import Icon from '../../../components/Icon';
 import { Category } from '../../../types';
+import { ClockWidget } from './ClockWidget';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -85,29 +86,26 @@ export function Sidebar({ isOpen, onClose, activeCategoryId, onOpenCatManager, o
       )}
 
       {/* Sidebar */}
-      <aside className={`fixed lg:static inset-y-0 left-0 z-30 ${isCollapsed ? 'w-16' : 'w-64 lg:w-48 xl:w-64'} transform transition-all duration-300 ease-in-out bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col overflow-x-hidden ${
+      <aside className={`fixed lg:static inset-y-0 left-0 z-30 ${isCollapsed ? 'w-16' : 'w-64 lg:w-48 xl:w-64'} transform transition-all duration-300 ease-in-out bg-white/30 dark:bg-slate-800 backdrop-blur-md border-r border-white/40 dark:border-slate-700 flex flex-col overflow-x-hidden ${
         isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
       }`}>
-        {/* Logo */}
-        <div className="h-16 flex items-center justify-center relative border-b border-slate-100 dark:border-slate-700 shrink-0 transition-all duration-300">
-          <span 
-            className={`text-xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent flex items-center h-full whitespace-nowrap overflow-hidden transition-all ease-in-out ${
-              isCollapsed ? 'max-w-0 opacity-0 duration-150' : 'max-w-[200px] opacity-100 duration-300 delay-150'
-            }`}
-          >
-            {ai?.sidebarNavigationName || ai?.navigationName || '个人导航'}
-          </span>
+        {/* Logo / 时钟（点击切换侧边栏收起） */}
+        <div
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="h-16 flex items-center justify-center px-4 relative border-b border-slate-100 dark:border-slate-700 shrink-0 transition-all duration-300 cursor-pointer select-none"
+          title={isCollapsed ? '展开侧边栏' : '折叠侧边栏'}
+        >
+          <div className={`transition-all ease-in-out ${
+            isCollapsed ? 'max-w-0 opacity-0 duration-150 overflow-hidden' : 'max-w-[240px] opacity-100 duration-300 delay-150'
+          }`}>
+            <ClockWidget compact />
+          </div>
           {isCollapsed && (
-            <button onClick={() => setIsCollapsed(false)} className="hidden lg:flex absolute p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors cursor-pointer" title="展开侧边栏">
+            <div className="hidden lg:flex absolute p-1.5 rounded-lg text-slate-500">
               <PanelLeftOpen size={20} />
-            </button>
+            </div>
           )}
-          {!isCollapsed && (
-            <button onClick={() => setIsCollapsed(true)} className="hidden lg:flex absolute right-4 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 transition-colors cursor-pointer" title="折叠侧边栏">
-              <PanelLeftClose size={18} />
-            </button>
-          )}
-          <button onClick={onClose} className="lg:hidden absolute right-4 p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
+          <button onClick={(e) => { e.stopPropagation(); onClose(); }} className="lg:hidden absolute right-4 p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
             <X size={18} />
           </button>
         </div>

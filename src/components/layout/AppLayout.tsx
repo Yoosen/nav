@@ -7,6 +7,7 @@ import { useSearch } from '../../hooks/useSearch';
 import { useDataSync } from '../../hooks/useDataSync';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
+import { AmbientBackground } from './AmbientBackground';
 import { MainContent } from './MainContent';
 import { ContentSkeleton } from './ContentSkeleton';
 import { LinkItem, Category } from '../../../types';
@@ -399,7 +400,9 @@ export function AppLayout() {
   }
 
   return (
-    <div className="flex h-screen bg-slate-50 dark:bg-slate-900 overflow-hidden text-slate-900 dark:text-slate-50">
+    <div className="flex h-screen bg-[#f7f3ec]/15 dark:bg-slate-900 overflow-hidden text-slate-900 dark:text-slate-50">
+      {/* 动态朦胧背景（仅浅色模式） */}
+      <AmbientBackground />
       {/* Sidebar */}
       <Sidebar
         isOpen={sidebarOpen}
