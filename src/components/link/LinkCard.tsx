@@ -200,7 +200,7 @@ export function LinkCard({
           </>
         ) : (
           <>
-            <div className={`flex items-center gap-2 ${small ? 'w-full justify-start' : 'w-full'}`}>
+            <div className={`flex items-center gap-2 ${small ? 'w-full justify-center' : 'w-full'}`}>
               <div className="text-blue-600 dark:text-blue-400 flex items-center justify-center text-sm font-bold uppercase shrink-0 w-6 h-6 rounded-lg bg-slate-50 dark:bg-slate-700">
                 {iconSrc ? <img src={iconSrc} alt="" className="w-4 h-4" loading="lazy" onError={() => setImgError(true)} /> : link.title.charAt(0).toUpperCase()}
               </div>

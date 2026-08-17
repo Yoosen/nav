@@ -21,7 +21,6 @@ const ImportModal = lazy(() => import('../../../components/ImportModal'));
 const SettingsModal = lazy(() => import('../../../components/SettingsModal'));
 const SearchConfigModal = lazy(() => import('../../../components/SearchConfigModal'));
 const ContextMenu = lazy(() => import('../../../components/ContextMenu'));
-const QRCodeModal = lazy(() => import('../../../components/QRCodeModal'));
 
 export function AppLayout() {
   // Contexts
@@ -71,11 +70,6 @@ export function AppLayout() {
     position: { x: number; y: number };
     link: LinkItem | null;
   }>({ isOpen: false, position: { x: 0, y: 0 }, link: null });
-
-  // QR Code Modal State
-  const [qrCodeModal, setQrCodeModal] = useState<{
-    isOpen: boolean; url: string; title: string;
-  }>({ isOpen: false, url: '', title: '' });
 
   // Drag sort confirmation state
   const [pendingDragLinks, setPendingDragLinks] = useState<{ links: LinkItem[]; categories: Category[] } | null>(null);
@@ -572,25 +566,12 @@ export function AppLayout() {
             onEdit={editLinkFromContextMenu}
             onDelete={deleteLinkFromContextMenu}
             onTogglePin={togglePinFromContextMenu}
-            onShowQRCode={(url, title) => {
-              setQrCodeModal({ isOpen: true, url, title });
-              closeContextMenu();
-            }}
             onCopyLink={() => {
               if (contextMenu.link) {
                 navigator.clipboard.writeText(contextMenu.link.url);
               }
               closeContextMenu();
             }}
-          />
-        )}
-
-        {qrCodeModal.isOpen && (
-          <QRCodeModal
-            isOpen={qrCodeModal.isOpen}
-            url={qrCodeModal.url}
-            title={qrCodeModal.title}
-            onClose={() => setQrCodeModal({ isOpen: false, url: '', title: '' })}
           />
         )}
       </Suspense>
